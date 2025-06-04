@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from datetime import date
-from wtforms import StringField, PasswordField, SubmitField, TextAreaField, SelectField,  MultipleFileField, FloatField, DateField
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField, DecimalField, SelectField,  MultipleFileField, FloatField, DateField
 from wtforms.validators import DataRequired, Email, Length, NumberRange
 from flask_wtf.file import FileAllowed, FileRequired, FileField
 
@@ -9,7 +9,7 @@ from flask_wtf.file import FileAllowed, FileRequired, FileField
 class AddLandForm(FlaskForm):
   title = StringField('Titre', validators=[DataRequired()])
   location = StringField('Emplacement', validators=[DataRequired()])
-  price = FloatField('prix', validators=[DataRequired(), NumberRange(min=0)])
+  price = DecimalField('prix (in GF)', validators=[DataRequired(), NumberRange(min=0)])
   description = TextAreaField('Description', validators=[DataRequired(), Length(min=8)])
   features = StringField('Features', validators=[DataRequired()])
   status = StringField('Status', validators=[DataRequired()])

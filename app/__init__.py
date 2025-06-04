@@ -4,6 +4,7 @@ from flask_migrate import Migrate  # type: ignore
 from flask_wtf.csrf import CSRFProtect
 import os
 from dotenv import load_dotenv
+from urllib.parse import quote_plus
 
 
 csrf = CSRFProtect()
@@ -18,22 +19,26 @@ def create_app():
   
   load_dotenv(os.path.join(base_dir, '..', '.env'))
 
-  db_path = os.path.join(base_dir, '..', 'instance', 'database.db')
-  db_uri = f"sqlite:///{os.path.abspath(db_path)}"
+  mysql_Name = os.getenv('MYSQL_USER')
+  mysql_Password = quote_plus(os.getenv('MYSQL_PASSWORD'))
+  mysql_host = os.getenv('MYSQL_HOST')
+  mysql_port = os.getenv('MYSQL_PORT', '3306')
+  mysql_db = os.getenv('MY_DATABASE')
+
+  app.config['SQLALCHEMY_DATABASE_URI'] = ( f"mysql+pymysql://{mysql_Name}:{mysql_Password}@{mysql_host}:{mysql_port}/{mysql_db}?charset=utf8mb4" )
+  
 
   app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev_secret_fallback')
-
-  app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 
   app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
   app.config['UPLOAD_FOLDER'] = os.path.join(project_Folder, '..', 'static', 'uploads')
   app.config['IMAGES_FOLDER'] = os.path.join(project_Folder, '..', 'static', 'images')
   app.config['ALLOWED_EXTENSION'] = {'JPG', 'jpeg', 'png'}
-  
-  instance_dir =  os.path.join(base_dir, '..', 'instance')
-  os.makedirs(instance_dir, exist_ok=True)
-  if not os.path.exists(db_path):
-    open(db_path, 'a').close()
+  print("MYSQL_USER", mysql_Name)
+  print("MYSQL_PASSWORD", mysql_Password)
+  print("MYSQL_HOST", mysql_host)
+  print("MYSQL_PORT", mysql_port)
+  print("MY_DATABASE", mysql_db)
 
   db.init_app(app)
   csrf.init_app(app)

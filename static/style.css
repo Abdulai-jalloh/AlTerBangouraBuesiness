@@ -225,7 +225,7 @@ width: 100%;
 
 form, fieldset{
   font-weight: bold;
-  width: 100%;
+  width: 90%;
   box-sizing: border-box;
 }
 fieldset{

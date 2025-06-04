@@ -11,6 +11,7 @@ from app.forms import AddLandForm
 from app.forms import DeleteForm
 from app.forms import SellLandForm
 from flask import jsonify
+from decimal import Decimal
 land_bp = Blueprint('land', __name__)
 
 # the Contact Messages
@@ -66,7 +67,7 @@ def upload_land():
             try:
                title = form.title.data
                location = form.location.data 
-               price = float(form.price.data)
+               price = form.price.data
                description = form.description.data
                features = form.features.data
                features_list = [f.strip() for f in features.split(',')]

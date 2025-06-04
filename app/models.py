@@ -1,13 +1,13 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from sqlalchemy.dialects.sqlite import JSON
+# from sqlalchemy.dialects.sqlite import JSON
 #Land Information
 db = SQLAlchemy()
 class Land(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   title = db.Column(db.String(100), nullable=False)
   location = db.Column(db.String(150), nullable=False)
-  price = db.Column(db.Float(120), nullable=False)
+  price = db.Column(db.Numeric(10, 2), nullable=False)
   description = db.Column(db.Text)
   mainImage = db.Column(db.String(255))
   gallery = db.Column(db.PickleType)
@@ -21,8 +21,8 @@ class Land(db.Model):
 
   date_Added = db.Column(db.DateTime, default=datetime.utcnow)
 
-  latitude = db.Column(db.Float(255))
-  longitude = db.Column(db.Float(255))
+  latitude = db.Column(db.Numeric(9, 6))
+  longitude = db.Column(db.Numeric(9, 6))
   visible = db.Column(db.Boolean, default=True)
 
   sales = db.relationship('Sale', backref='land', cascade="all, delete", lazy=True)
