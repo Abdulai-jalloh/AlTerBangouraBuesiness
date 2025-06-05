@@ -66,6 +66,7 @@ def upload_land():
         if form.validate_on_submit():
             print("The form is valid")
             print("upload route hit", file=sys.stderr)
+
             try:
                title = form.title.data
                location = form.location.data 
@@ -139,6 +140,8 @@ def upload_land():
                 return redirect(url_for('land./')) 
         else:
             print("form Validation faild")
+            print("gallery",gallery_paths)
+            print("mainImage",main_image_url)
             print("form:", request.form, file=sys.stderr)
             flash("form not submited please check", "denger")
     return render_template('admin.html', form=form) 
