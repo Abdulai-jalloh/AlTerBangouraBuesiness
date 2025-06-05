@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
       container.innerHTML = ''; 
       landsToDisplay.forEach(land => {
         container.innerHTML += `<a href="/land/${land.id}"><div class="land-card"> 
-                        
+                                <h3>${land.description}</h3>
                                 <img src="${land.mainImage}" alt="${land.title}">
                                 <h4>Titre: ${land.title}</h4>
                                 <p>Emplacement: ${land.location}</p>
@@ -91,7 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
       
       container.innerHTML = '';
       landsToDisplay.forEach(land =>{ 
-        container.innerHTML += `<a href="/land/${land.id}"> <section class="Lands-card"> <img src="${land.mainImage}" alt="${land.title}">
+        container.innerHTML += `<a href="/land/${land.id}"> <section class="Lands-card"> 
+          <h3>${land.description}</h3>
+         <img src="${land.mainImage}" alt="${land.title}">
         <h2> Title: ${land.title}</h2> 
         <h2> Status: ${land.status}</h2> 
         <p> <strong> Emplacement: </strong>${land.location} </p> 
