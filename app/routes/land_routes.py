@@ -12,6 +12,7 @@ from app.forms import DeleteForm
 from app.forms import SellLandForm
 from flask import jsonify
 from decimal import Decimal
+import sys
 land_bp = Blueprint('land', __name__)
 
 # the Contact Messages
@@ -64,6 +65,7 @@ def upload_land():
         print("The form is",form.errors)
         if form.validate_on_submit():
             print("The form is valid")
+            print("upload route hit", file=sys.stderr)
             try:
                title = form.title.data
                location = form.location.data 
@@ -85,6 +87,7 @@ def upload_land():
                os.makedirs(current_app.config['IMAGES_FOLDER'], exist_ok=True)
                main_filename = secure_filename(main_image.filename).replace(" ", "_")
                main_path = os.path.join(current_app.config['IMAGES_FOLDER'], main_filename).replace("\\", "/")
+               print("Method", request.method)
                try:
                   main_image.save(main_path)
                   main_image_url = f"/static/images/{main_filename}"
@@ -105,6 +108,7 @@ def upload_land():
                         gallery_paths.append(img_url)
                         print("Saving image in", path)
                         print("Saving image in", gallery_paths)
+                        print("Files:", request.files, file=sys.stderr)
                 # Now, create the land only once after gathering all images:
                try:
                     new_land = Land(
@@ -129,12 +133,13 @@ def upload_land():
                     print("New land is", new_land)
                except Exception as e:
                     print("Error creating or saving land:", e)
-                    
+                    print("form:", request.form, file=sys.stderr)
                     print("New land is",new_land)
             except Exception as e:
                 return redirect(url_for('land./')) 
         else:
             print("form Validation faild")
+            print("form:", request.form, file=sys.stderr)
             flash("form not submited please check", "denger")
     return render_template('admin.html', form=form) 
 
