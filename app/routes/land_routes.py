@@ -140,8 +140,6 @@ def upload_land():
                 return redirect(url_for('land./')) 
         else:
             print("form Validation faild")
-            print("gallery",gallery_paths)
-            print("mainImage",main_image_url)
             print("form:", request.form, file=sys.stderr)
             flash("form not submited please check", "denger")
     return render_template('admin.html', form=form) 
