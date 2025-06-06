@@ -13,6 +13,7 @@ from app.forms import SellLandForm
 from flask import jsonify
 from decimal import Decimal
 import sys
+import cloudinary.uploader
 land_bp = Blueprint('land', __name__)
 
 # the Contact Messages
@@ -64,8 +65,6 @@ def upload_land():
         print("Form sumited")
         print("The form is",form.errors)
         if form.validate_on_submit():
-            print("The form is valid")
-            print("upload route hit", file=sys.stderr)
 
             try:
                title = form.title.data
@@ -85,31 +84,27 @@ def upload_land():
                latitude = float(form.latitude.data)
                longitude = float(form.longitude.data)
                # Save the main image
-               os.makedirs(current_app.config['IMAGES_FOLDER'], exist_ok=True)
-               main_filename = secure_filename(main_image.filename).replace(" ", "_")
-               main_path = os.path.join(current_app.config['IMAGES_FOLDER'], main_filename).replace("\\", "/")
-               print("Method", request.method)
-               try:
-                  main_image.save(main_path)
-                  main_image_url = f"/static/images/{main_filename}"
-                  print("Main image saved successfuly.")
-               except Exception as e:
-                  print("Error saveing Main images:", e)
-                  return "Image save failed: " + str(e), 500
+               main_image_url = None
+               if main_image:
+                  try:
+                      upload_result = cloudinary.uploader.upload(main_image)
+                      main_image_url = upload_result['secure_url']
+                      print("Main image saved successfuly.")
+                  except Exception as e:
+                      print("Error saveing Main images:", e)
+                      return "Image save failed: " + str(e), 500
 
                             # Save gallery images
                gallery_paths = []
                for i, img in enumerate(gallery):
                     if img.filename:
-                        filename = secure_filename(img.filename).replace(" ", "_")
-                        save_name = f"{title}-gallery-{i+1}-{filename}"
-                        path = os.path.join(current_app.config['IMAGES_FOLDER'], save_name).replace("\\", "/")
-                        img.save(path)
-                        img_url = f"/static/images/{save_name}"
-                        gallery_paths.append(img_url)
-                        print("Saving image in", path)
-                        print("Saving image in", gallery_paths)
-                        print("Files:", request.files, file=sys.stderr)
+                        try:
+                            upload_result = cloudinary.uploader.upload(img)
+                            img_url = upload_result['secure_url']
+                            gallery_paths.append(img_url)
+                            print(f"Gallery image {i+1} uploaded successfully to cloudinary:", img_url)
+                        except Exception as e:
+                            print(f"Error uploading gallery image {i+1}:", e)
                 # Now, create the land only once after gathering all images:
                try:
                     new_land = Land(

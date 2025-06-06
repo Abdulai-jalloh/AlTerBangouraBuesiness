@@ -5,7 +5,7 @@ from flask_wtf.csrf import CSRFProtect
 import os
 from dotenv import load_dotenv
 from urllib.parse import quote_plus
-
+import cloudinary
 
 csrf = CSRFProtect()
 migrate = Migrate()
@@ -14,8 +14,7 @@ def create_app():
   base_dir = os.path.abspath(os.path.dirname(__file__))
   project_Folder = os.path.abspath(os.path.join(base_dir))
   app = Flask(__name__, 
-  template_folder=os.path.join(project_Folder, '..', 'templates'),
-  static_folder=os.path.join(project_Folder, '..', 'static'))
+  template_folder=os.path.join(project_Folder, '..', 'templates'))
   
   load_dotenv(os.path.join(base_dir, '..', '.env'))
 
@@ -25,14 +24,17 @@ def create_app():
   mysql_port = os.getenv('MYSQL_PORT', '3306')
   mysql_db = os.getenv('MY_DATABASE')
 
+  cloudinary.config(
+  cloud_name = os.getenv('CLOUD_NAME'),
+  api_key = os.getenv('API_KEY'),
+  secret_key = os.getenv('API_SECRET') )
+
   app.config['SQLALCHEMY_DATABASE_URI'] = ( f"mysql+pymysql://{mysql_Name}:{mysql_Password}@{mysql_host}:{mysql_port}/{mysql_db}?charset=utf8mb4" )
   
 
   app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev_secret_fallback')
 
   app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-  app.config['UPLOAD_FOLDER'] = os.path.join(project_Folder, '..', 'static', 'uploads')
-  app.config['IMAGES_FOLDER'] = os.path.join(project_Folder, '..', 'static', 'images')
   app.config['ALLOWED_EXTENSION'] = {'JPG', 'jpeg', 'png'}
   print("MYSQL_USER", mysql_Name)
   print("MYSQL_PASSWORD", mysql_Password)
