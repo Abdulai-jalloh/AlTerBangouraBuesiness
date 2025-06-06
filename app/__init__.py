@@ -14,7 +14,8 @@ def create_app():
   base_dir = os.path.abspath(os.path.dirname(__file__))
   project_Folder = os.path.abspath(os.path.join(base_dir))
   app = Flask(__name__, 
-  template_folder=os.path.join(project_Folder, '..', 'templates'))
+  template_folder=os.path.join(project_Folder, '..', 'templates'),
+  static_folder=os.path.join(project_Folder, '..', 'static'))
   
   load_dotenv(os.path.join(base_dir, '..', '.env'))
 
