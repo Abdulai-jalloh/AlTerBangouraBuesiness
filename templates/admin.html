@@ -73,7 +73,7 @@
     <p>  {{ form.mainImage.label }} </p> <br>
     <p>  {{ form.mainImage() }} </p> <br>
 
-      {% if editing and land.gallery %}
+      <!-- {% if editing and land.gallery %}
       <p>Current Gallery Images</p>
       {% for img in land.gallery %}
       <img src="{{ img }}" alt="Gallery Image" width="100">
@@ -82,7 +82,7 @@
       {% endfor %}
       {% endif %}
     <p>  {{ form.gallery.label }} </p> <br>
-    <p>  {{ form.gallery(multiple=true) }} </p> <br> 
+    <p>  {{ form.gallery(multiple=true) }} </p> <br>  -->
     <button type="submit">{{'Update' if editing else 'Submit' }}</button>
 </form>
 
