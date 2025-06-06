@@ -57,87 +57,104 @@ def land_details(land_id):
   else:
     return "Land Not Found", 404
   
-@land_bp.route('/upload_land', 
-methods=['GET', 'POST'])
+@land_bp.route('/upload_land', methods=['GET', 'POST'])
 def upload_land():
     form = AddLandForm()
     if request.method == 'POST':
-        print("Form sumited")
-        print("The form is",form.errors)
+        print("Form submitted")
+        print("Form errors:", form.errors)
+        print("Request files:", request.files)
+        print("Request form:", request.form)
+
         if form.validate_on_submit():
-
             try:
-               title = form.title.data
-               location = form.location.data 
-               price = form.price.data
-               description = form.description.data
-               features = form.features.data
-               features_list = [f.strip() for f in features.split(',')]
-               main_image = form.mainImage.data
-               gallery = form.gallery.data
-               status = form.status.data
+                title = form.title.data
+                location = form.location.data
+                price = form.price.data
+                description = form.description.data
+                features = form.features.data
+                features_list = [f.strip() for f in features.split(',')]
+                main_image = form.mainImage.data
+                gallery = form.gallery.data
+                status = form.status.data
 
-               # Owner information
-               name = form.name.data
-               email = form.email.data
-               phone = form.phone.data
-               latitude = float(form.latitude.data)
-               longitude = float(form.longitude.data)
-               # Save the main image
-               main_image_url = None
-               if main_image:
-                  try:
-                      upload_result = cloudinary.uploader.upload(main_image)
-                      main_image_url = upload_result['secure_url']
-                      print("Main image saved successfuly.")
-                  except Exception as e:
-                      print("Error saveing Main images:", e)
-                      return "Image save failed: " + str(e), 500
+                # Owner info
+                name = form.name.data
+                email = form.email.data
+                phone = form.phone.data
 
-                            # Save gallery images
-               gallery_paths = []
-               for i, img in enumerate(gallery):
+                # Latitude & Longitude
+                try:
+                    latitude = float(form.latitude.data)
+                except (ValueError, TypeError):
+                    latitude = None
+
+                try:
+                    longitude = float(form.longitude.data)
+                except (ValueError, TypeError):
+                    longitude = None
+
+                # Main image upload
+                main_image_url = None
+                if main_image and main_image.filename:
+                    try:
+                        upload_result = cloudinary.uploader.upload(main_image)
+                        main_image_url = upload_result['secure_url']
+                        print("Main image uploaded:", main_image_url)
+                    except Exception as e:
+                        print("Main image upload error:", e)
+                        flash(f"Main image upload failed: {e}", "danger")
+                        return redirect(request.url)
+
+                # Gallery upload
+                gallery_paths = []
+                for i, img in enumerate(gallery):
                     if img.filename:
                         try:
                             upload_result = cloudinary.uploader.upload(img)
                             img_url = upload_result['secure_url']
                             gallery_paths.append(img_url)
-                            print(f"Gallery image {i+1} uploaded successfully to cloudinary:", img_url)
+                            print(f"Gallery image {i+1} uploaded:", img_url)
                         except Exception as e:
-                            print(f"Error uploading gallery image {i+1}:", e)
-                # Now, create the land only once after gathering all images:
-               try:
-                    new_land = Land(
-                        title=title,
-                        location=location,
-                        price=price,
-                        mainImage=main_image_url,
-                        gallery=gallery_paths,
-                        features=features_list,
-                        description=description,
-                        status=status,
-                        visible=True,
-                        name=name,
-                        phone=phone,
-                        email=email,
-                        latitude=latitude,
-                        longitude=longitude
-                    )
-                    db.session.add(new_land)
-                    db.session.commit()
-                    flash("Terrain ajouté avec succès!", "success") 
-                    print("New land is", new_land)
-               except Exception as e:
-                    print("Error creating or saving land:", e)
-                    print("form:", request.form, file=sys.stderr)
-                    print("New land is",new_land)
+                            print(f"Gallery image {i+1} upload error:", e)
+                            flash(f"Gallery image {i+1} upload failed: {e}", "danger")
+                            return redirect(request.url)
+
+                # Create Land object
+                new_land = Land(
+                    title=title,
+                    location=location,
+                    price=price,
+                    mainImage=main_image_url,
+                    gallery=gallery_paths,
+                    features=features_list,
+                    description=description,
+                    status=status,
+                    visible=True,
+                    name=name,
+                    phone=phone,
+                    email=email,
+                    latitude=latitude,
+                    longitude=longitude
+                )
+
+                db.session.add(new_land)
+                db.session.commit()
+                flash("Terrain ajouté avec succès!", "success")
+                print("New land saved:", new_land)
+
+                return redirect(url_for('land.upload_land'))
+
             except Exception as e:
-                return redirect(url_for('land./')) 
+                print("Error saving land:", e)
+                flash(f"Error saving land: {e}", "danger")
+                return redirect(request.url)
         else:
-            print("form Validation faild")
-            print("form:", request.form, file=sys.stderr)
-            flash("form not submited please check", "denger")
-    return render_template('admin.html', form=form) 
+            print("Form validation failed")
+            print("Form errors:", form.errors)
+            flash("Form not submitted, please check the fields", "danger")
+
+    return render_template('admin.html', form=form)
 
 @land_bp.route('/dashboard')
 def dashboard():
