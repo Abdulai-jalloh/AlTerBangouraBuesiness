@@ -60,18 +60,30 @@ def land_details(land_id):
 @land_bp.route('/upload_land', methods=['GET', 'POST'])
 def upload_land():
     form = AddLandForm()
+
     if request.method == 'POST':
-        print("Form submitted")
+        print("======== 📩 FORM SUBMITTED ========")
         print("Form errors:", form.errors)
         print("Request files:", request.files)
         print("Request form:", request.form)
 
         if form.validate_on_submit():
-            print("Form validated successfully")
-            print("form Errors:", form.errors)
-            print("request file:", request.files)
-            print("request forms:", request.form)
+            print("✅ Form validated successfully")
             try:
+                # Print fields explicitly
+                print(f"title: {form.title.data}")
+                print(f"location: {form.location.data}")
+                print(f"price: {form.price.data}")
+                print(f"description: {form.description.data}")
+                print(f"features: {form.features.data}")
+                print(f"status: {form.status.data}")
+                print(f"name: {form.name.data}")
+                print(f"email: {form.email.data}")
+                print(f"phone: {form.phone.data}")
+                print(f"latitude: {form.latitude.data}")
+                print(f"longitude: {form.longitude.data}")
+
+                # Prepare data
                 title = form.title.data
                 location = form.location.data
                 price = form.price.data
@@ -82,12 +94,10 @@ def upload_land():
                 gallery = form.gallery.data
                 status = form.status.data
 
-                # Owner info
                 name = form.name.data
                 email = form.email.data
                 phone = form.phone.data
 
-                # Latitude & Longitude
                 try:
                     latitude = float(form.latitude.data)
                 except (ValueError, TypeError):
@@ -98,33 +108,35 @@ def upload_land():
                 except (ValueError, TypeError):
                     longitude = None
 
-                # Main image upload
+                # Upload Main image
                 main_image_url = None
                 if main_image and main_image.filename:
+                    print("➡️ Uploading main image...")
                     try:
                         upload_result = cloudinary.uploader.upload(main_image)
                         main_image_url = upload_result['secure_url']
-                        print("Main image uploaded:", main_image_url)
+                        print("✅ Main image uploaded:", main_image_url)
                     except Exception as e:
-                        print("Main image upload error:", e)
+                        print("❌ Main image upload error:", e)
                         flash(f"Main image upload failed: {e}", "danger")
                         return redirect(request.url)
 
-                # Gallery upload
+                # Upload Gallery
                 gallery_paths = []
+                print(f"➡️ Uploading {len(gallery)} gallery images...")
                 for i, img in enumerate(gallery):
                     if img.filename:
                         try:
                             upload_result = cloudinary.uploader.upload(img)
                             img_url = upload_result['secure_url']
                             gallery_paths.append(img_url)
-                            print(f"Gallery image {i+1} uploaded:", img_url)
+                            print(f"✅ Gallery image {i+1} uploaded:", img_url)
                         except Exception as e:
-                            print(f"Gallery image {i+1} upload error:", e)
+                            print(f"❌ Gallery image {i+1} upload error:", e)
                             flash(f"Gallery image {i+1} upload failed: {e}", "danger")
                             return redirect(request.url)
 
-                # Create Land object
+                # Save Land object
                 new_land = Land(
                     title=title,
                     location=location,
@@ -145,16 +157,16 @@ def upload_land():
                 db.session.add(new_land)
                 db.session.commit()
                 flash("Terrain ajouté avec succès!", "success")
-                print("New land saved:", new_land)
+                print("✅ New land saved:", new_land)
 
                 return redirect(url_for('land.upload_land'))
 
             except Exception as e:
-                print("Error saving land:", e)
+                print("❌ Error saving land:", e)
                 flash(f"Error saving land: {e}", "danger")
                 return redirect(request.url)
         else:
-            print("Form validation failed")
+            print("❌ Form validation failed")
             print("Form errors:", form.errors)
             flash("Form not submitted, please check the fields", "danger")
 
