@@ -394,7 +394,7 @@ def delete_land(land_id):
     flash("land Deleted successfully.", "success")
     return redirect(url_for('land.Admin_work'))
 
-@app.route('/test)cloudinary')
+@land_bp.route('/test)cloudinary')
 def test_cloud():
     try:
         result = cloudinary.api.ping()
