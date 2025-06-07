@@ -67,6 +67,10 @@ def upload_land():
         print("Request form:", request.form)
 
         if form.validate_on_submit():
+            print("Form validated successfully")
+            print("form Errors:", form.errors)
+            print("request file:", request.files)
+            print("request forms:", request.form)
             try:
                 title = form.title.data
                 location = form.location.data
@@ -377,3 +381,11 @@ def delete_land(land_id):
     db.session.commit()
     flash("land Deleted successfully.", "success")
     return redirect(url_for('land.Admin_work'))
+
+@app.route('/test)cloudinary')
+def test_cloud():
+    try:
+        result = cloudinary.api.ping()
+        return f"cloudinary ping success: {result}"
+    except Exception as e:
+        return f"cloudinary ping faild: {e}"
